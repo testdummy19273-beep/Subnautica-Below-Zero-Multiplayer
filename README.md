@@ -1,24 +1,5 @@
 # Subnautica Below Zero Multiplayer
 
-An multiplayer modification for the game Subnautica BZ.
-
-[![Discord](https://img.shields.io/discord/994133148046725160?logo=discord&logoColor=white)](https://discord.gg/Gq9nush6SP)
-[![Crowdin](https://badges.crowdin.net/subnautica-bz-multiplayer-mod/localized.svg)](https://crowdin.com/project/subnautica-bz-multiplayer-mod)
-
-[Website](https://subnauticamultiplayer.com/) | [Discord](https://discord.gg/Gq9nush6SP) | [Documents](https://docs.subnauticamultiplayer.com/) | [Translation](https://crowdin.com/project/subnautica-bz-multiplayer-mod) | [Credits](https://subnauticamultiplayer.com/credits)
-
-## Source Code Information
-
-The source code in this repository is shared to help you understand how Subnautica Below Zero Multiplayer works, to guide you when modding other games, and for your reference when creating plugins. Therefore, the source code cannot be copied, sold or modified by 3rd parties. I do not accept any contributions, so do not send any pull requests. The source code in the repository may not contain the latest version of the mod. The mod is only being developed by me in a different repository. So I will occasionally update the public source code in this repo.
-
-### Issues & Support
-
-Do not create an issue for other things that are not in-game bugs. Github is not for support. If you need support, join our [discord server](https://discord.gg/Gq9nush6SP). Github is only for reporting in-game bugs. If you notice an in-game bug, report it on our github repo.
-
-### How can I play this mod?
-
-You can download the full version at [subnauticamultiplayer.com](https://subnauticamultiplayer.com). For your own safety, do not download from anywhere other than "subnauticamultiplayer.com".
-
 ### Translations
 
 You can contribute to us to translate the mod into other languages. You can get started at [here.](https://crowdin.com/project/subnautica-bz-multiplayer-mod/)
@@ -304,12 +285,3 @@ You can contribute to us to translate the mod into other languages. You can get 
   - [x] SpyPenguin
 - [x] PDA Beacons Synchronization
 - [x] Base Hull Strength Synchronization
-
-### How can I report bugs in the mod?
-
-1. Please first note that the bug you are about to report here has not already been reported. <https://github.com/ismail0234/Subnautica-Below-Zero-Multiplayer/issues>
-2. If you are experiencing a synchronisation problem, please check in the to-do list whether the item/furniture you are experiencing the synchronisation problem with has been completed.
-3. Follow these steps by going to our github repo. "Issues -> Bug Report -> Get Started"
-4. Fill in all mandatory information requested from you.
-5. Describe the bug in as much detail as possible.
-6. If you have video recordings or screenshots, please attach them. (These will make it very easy for me to solve the error).
