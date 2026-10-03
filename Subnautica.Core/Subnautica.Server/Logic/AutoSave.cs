@@ -7,7 +7,7 @@ namespace Subnautica.Server.Logic
 
     public class AutoSave : BaseLogic
     {
-        public StopwatchItem Timing { get; set; } = new StopwatchItem(5000f);
+        public StopwatchItem Timing { get; set; } = new StopwatchItem(Settings.ModConfig.AutoSaveInterval.GetInt(5) * 1000f);
 
         public override void OnAsyncUpdate()
         {

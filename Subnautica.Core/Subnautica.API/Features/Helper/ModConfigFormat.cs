@@ -14,6 +14,7 @@
         public ModConfigFormatItem HostOnPort { get; set; } = new(7777, "Port to host the game on.");
         public ModConfigFormatItem MaxPlayer { get; set; } = new(8, "How many player should max join.");
         public ModConfigFormatItem DefaultJoinPort { get; set; } = new(7777, "Port to host the game on.");
+        public ModConfigFormatItem AutoSaveInterval { get; set; } = new(5, "How often the host saves the world, in seconds. (Type: Number/Second, Default: 5, Min: 1, Max: 600)");
 
         public void Initialize()
         {
@@ -37,6 +38,10 @@
                         if (config.HostOnPort != null) HostOnPort.SetValue(config.HostOnPort.Value);
                         if (config.MaxPlayer != null) MaxPlayer.SetValue(config.MaxPlayer.Value);
                         if (config.DefaultJoinPort != null) DefaultJoinPort.SetValue(config.DefaultJoinPort.Value);
+                        if (config.AutoSaveInterval != null && config.AutoSaveInterval.GetInt() >= 1 && config.AutoSaveInterval.GetInt() <= 600)
+                        {
+                            AutoSaveInterval.SetValue(config.AutoSaveInterval.GetInt());
+                        }
                     }
                 }
 

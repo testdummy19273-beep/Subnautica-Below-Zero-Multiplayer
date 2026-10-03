@@ -8,17 +8,21 @@ are on the same version.
 
 QUICK START: SubnauticaBZ-Launcher.exe  (portable, no install)
   Unzip this folder anywhere and keep the Multiplayer and Patcher folders next to the launcher.
-  * Play      Finds your game (Steam) or lets you Browse to SubnauticaZero.exe. Install / Update /
-              Uninstall the mod and Launch the game. Your original Assembly-CSharp.dll is backed up as
-              Assembly-CSharp.dll.original; no game files are redistributed in this zip.
-  * Host      Pick a world (or create a new one: Survival / Freedom / Hardcore / Creative) and press
-              Host. The game starts and goes straight into hosting it. The addresses your friends
-              type (LAN, ZeroTier ...) are listed there with a Copy button. Keep the game running.
-  * Join      Type the host's address (192.168.1.20 or 192.168.1.20:7777) or pick a saved server and
-              press Join. The game starts and connects by itself.
-  * Settings  Your player name, ports, max players, timeout and the firewall option (Multiplayer\Game\Core\Config.json).
-  * Game log  Shows the latest mod log, handy if something does not connect.
+  * Play game  Finds your game (Steam) or lets you Browse to SubnauticaZero.exe. Install / Update /
+               Uninstall the mod and press PLAY. Your original Assembly-CSharp.dll is backed up as
+               Assembly-CSharp.dll.original; no game files are redistributed in this zip.
+  * Servers    Your hosted worlds as cards (name, mode, Online/Offline). CREATE NEW SERVER asks for a name
+               and a game mode (Survival / Freedom / Hardcore / Creative). Start opens the game straight
+               into that world; keep it running while your friends play. Manage opens the server page:
+               name, player limit, auto save interval, port, automatic backups, the addresses your friends
+               type (LAN, ZeroTier ...) with a Copy button, Open world folder, Back up now, Restore a backup
+               and Delete server.
+  * Join       Type the host's address (192.168.1.20 or 192.168.1.20:7777), or pick a saved server, and press
+               Join. The game starts and connects by itself.
+  * Options    Your player name, default join port and connection timeout.
+  * Game log   Shows the latest mod log, handy if something does not connect.
   Hosting and joining also still work from the game's own Multiplayer menu.
+  The server always runs inside the host's game (there is no separate "External" server program).
 
 MANUAL INSTALL (without the launcher)
   1. Run Install.bat. If your game is not in the default Steam folder, run it from a command prompt as
@@ -41,6 +45,8 @@ OPTIONS  (Multiplayer\Game\Core\Config.json - the launcher's Settings tab edits 
                    name. With a name set, nothing depends on Steam: your player id is made from the name, so
                    keep using the same name to keep your character in a world. Every player on a server needs
                    a different name.
+  AutoSaveInterval How often the host saves the world, in seconds (default 5, 1-600). The launcher sets it
+                   per server from the Manage page.
   GameExePath      Full path to SubnauticaZero.exe (or its folder). Empty = auto-detect. Only used for the
                    firewall rule.
   ConfigureFirewall  true/false - allow the game through Windows Firewall when hosting.

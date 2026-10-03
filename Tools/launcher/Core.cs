@@ -347,6 +347,7 @@ namespace BZLauncher
             new[] { "HostOnPort", "Port to host the game on." },
             new[] { "MaxPlayer", "How many player should max join." },
             new[] { "DefaultJoinPort", "Port to host the game on." },
+            new[] { "AutoSaveInterval", "How often the host saves the world, in seconds. (Type: Number/Second, Default: 5, Min: 1, Max: 600)" },
         };
 
         static object DefaultValue(string key)
@@ -359,6 +360,7 @@ namespace BZLauncher
                 case "ConfigureFirewall": return true;
                 case "HostOnPort": return 7777;
                 case "MaxPlayer": return 8;
+                case "AutoSaveInterval": return 5;
                 default: return 7777;
             }
         }
@@ -405,7 +407,23 @@ namespace BZLauncher
         public DateTime LastPlayed;
         public long Bytes;
 
+        // Launcher-owned keys in the world's config.json (the mod ignores them).
+        public string Name;
+        public int Port;
+        public int MaxPlayer;
+        public int AutoSave;
+        public bool BackupOnStart;
+
         public string ModeName { get { return GameModes.Name(GameMode); } }
+        public string DisplayName { get { return string.IsNullOrWhiteSpace(Name) ? "World " + Id.Substring(0, Math.Min(8, Id.Length)) : Name; } }
+    }
+
+    class BackupInfo
+    {
+        public string Folder;
+        public string Label;
+        public DateTime Time;
+        public long Bytes;
     }
 
     static class GameModes
@@ -447,9 +465,97 @@ namespace BZLauncher
                     Created = FromUnix(d.TryGetValue("CreationDate", out v) ? Json.ToInt(v, 0) : 0),
                     LastPlayed = FromUnix(d.TryGetValue("LastPlayedDate", out v) ? Json.ToInt(v, 0) : 0),
                     Bytes = FolderSize(dir),
+                    Name = d.TryGetValue("Name", out v) ? Convert.ToString(v) : null,
+                    Port = d.TryGetValue("Port", out v) ? Json.ToInt(v, 0) : 0,
+                    MaxPlayer = d.TryGetValue("MaxPlayer", out v) ? Json.ToInt(v, 0) : 0,
+                    AutoSave = d.TryGetValue("AutoSaveInterval", out v) ? Json.ToInt(v, 0) : 0,
+                    BackupOnStart = !d.TryGetValue("BackupOnStart", out v) || Convert.ToBoolean(v),
                 });
             }
             return list.OrderByDescending(w => w.LastPlayed).ToList();
+        }
+
+        public static string Create(string game, string name, int gameMode)
+        {
+            var id = Guid.NewGuid().ToString();
+            var dir = Path.Combine(Paths.WorldsDir(game), id);
+            Directory.CreateDirectory(dir);
+            var now = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+            var d = new Dictionary<string, object>
+            {
+                { "GameMode", gameMode }, { "CreationDate", now }, { "LastPlayedDate", now }, { "Name", name },
+            };
+            Json.Write(Path.Combine(dir, "config.json"), d, false);
+            return id;
+        }
+
+        /// <summary>Writes the launcher-owned keys, keeping everything else in config.json as it is.</summary>
+        public static void SaveSettings(string game, World w)
+        {
+            var cfg = Path.Combine(Paths.WorldsDir(game), w.Id, "config.json");
+            var d = Json.ReadObject(cfg);
+            d["Name"] = w.Name;
+            d["Port"] = w.Port;
+            d["MaxPlayer"] = w.MaxPlayer;
+            d["AutoSaveInterval"] = w.AutoSave;
+            d["BackupOnStart"] = w.BackupOnStart;
+            Json.Write(cfg, d, false);
+        }
+
+        // ---- backups: Multiplayer\Game\Backups\<world id>\<label>
+
+        static string BackupRoot(string game, string id) { return Path.Combine(Paths.ModRoot(game), "Backups", id); }
+
+        public static string Backup(string game, string id, string prefix)
+        {
+            var src = Path.Combine(Paths.WorldsDir(game), id);
+            if (!Directory.Exists(src)) throw new DirectoryNotFoundException("World folder not found.");
+            var dest = Path.Combine(BackupRoot(game, id), prefix + "-" + DateTime.Now.ToString("yyyyMMdd-HHmmss"));
+            CopyTree(src, dest);
+            return dest;
+        }
+
+        public static void PruneAutoBackups(string game, string id, int keep)
+        {
+            foreach (var b in ListBackups(game, id).Where(b => b.Label.StartsWith("auto-")).Skip(keep))
+            {
+                try { Directory.Delete(b.Folder, true); } catch { }
+            }
+        }
+
+        public static List<BackupInfo> ListBackups(string game, string id)
+        {
+            var list = new List<BackupInfo>();
+            var root = BackupRoot(game, id);
+            if (!Directory.Exists(root)) return list;
+            foreach (var dir in Directory.GetDirectories(root))
+            {
+                var info = new DirectoryInfo(dir);
+                list.Add(new BackupInfo { Folder = dir, Label = info.Name, Time = info.CreationTime, Bytes = FolderSize(dir) });
+            }
+            return list.OrderByDescending(b => b.Time).ToList();
+        }
+
+        /// <summary>Replaces the world with a backup. The current state is kept as a "before-restore" backup first.</summary>
+        public static void Restore(string game, string id, BackupInfo backup)
+        {
+            Backup(game, id, "before-restore");
+            var world = Path.Combine(Paths.WorldsDir(game), id);
+            var cfg = Path.Combine(world, "config.json");
+            var keepConfig = File.Exists(cfg) ? File.ReadAllBytes(cfg) : null;
+
+            if (Directory.Exists(world)) Directory.Delete(world, true);
+            CopyTree(backup.Folder, world);
+            if (keepConfig != null && !File.Exists(cfg)) File.WriteAllBytes(cfg, keepConfig);
+        }
+
+        static void CopyTree(string from, string to)
+        {
+            Directory.CreateDirectory(to);
+            foreach (var file in Directory.GetFiles(from))
+                File.Copy(file, Path.Combine(to, Path.GetFileName(file)), true);
+            foreach (var dir in Directory.GetDirectories(from))
+                CopyTree(dir, Path.Combine(to, Path.GetFileName(dir)));
         }
 
         public static void Delete(string game, string id)
