@@ -166,7 +166,15 @@
 
         public void OnQuitting()
         {
-
+            // Closing the game window (or the launcher's Stop button) must save and stop a hosted world.
+            try
+            {
+                Subnautica.Client.Core.NetworkServer.AbortServer();
+            }
+            catch (System.Exception e)
+            {
+                Subnautica.API.Features.Log.Error($"Router.OnQuitting: {e}");
+            }
         }
 
         public void OnEquipmentEquiped()

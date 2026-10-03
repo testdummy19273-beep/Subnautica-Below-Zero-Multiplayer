@@ -13,7 +13,8 @@ QUICK START: SubnauticaBZ-Launcher.exe  (portable, no install)
                Assembly-CSharp.dll.original; no game files are redistributed in this zip.
   * Servers    Your hosted worlds as cards (name, mode, Online/Offline). CREATE NEW SERVER asks for a name
                and a game mode (Survival / Freedom / Hardcore / Creative). Start opens the game straight
-               into that world; keep it running while your friends play. Manage opens the server page:
+               into that world; keep it running while your friends play. While it runs the button
+               turns into Stop, which saves the world and closes the game. Manage opens the server page:
                name, player limit, auto save interval, port, automatic backups, the addresses your friends
                type (LAN, ZeroTier ...) with a Copy button, Open world folder, Back up now, Restore a backup
                and Delete server.

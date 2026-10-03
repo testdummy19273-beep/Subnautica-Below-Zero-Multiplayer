@@ -12,7 +12,7 @@ namespace BZLauncher
 {
     class MainForm : Form
     {
-        const string ModVersion = "1.4.0";
+        const string ModVersion = "1.4.1";
         const string ProjectUrl = "https://github.com/testdummy19273-beep/Subnautica-Below-Zero-Multiplayer";
 
         string game;
@@ -42,6 +42,8 @@ namespace BZLauncher
         Panel serverList;
         RoundButton btnCreate;
         readonly Dictionary<string, KeyValuePair<Label, Label>> serverStatus = new Dictionary<string, KeyValuePair<Label, Label>>();
+        readonly Dictionary<string, RoundButton> serverButtons = new Dictionary<string, RoundButton>();
+        bool stopping;
 
         // Manage
         World cur, orig;
@@ -540,6 +542,9 @@ namespace BZLauncher
                 bool on = IsHosting(kv.Key);
                 kv.Value.Key.ForeColor = on ? Ui.Good : Ui.Danger;
                 kv.Value.Value.Text = on ? "Online" : "Offline";
+
+                RoundButton button;
+                if (serverButtons.TryGetValue(kv.Key, out button)) StyleStartButton(button, on);
             }
 
             if (cur != null && lblManageDot != null)
@@ -547,9 +552,56 @@ namespace BZLauncher
                 bool on = IsHosting(cur.Id);
                 lblManageDot.ForeColor = on ? Ui.Good : Ui.Danger;
                 lblManageStatus.Text = (on ? "Online   " : "Offline   ") + cur.ModeName;
-                btnStart.Text = on ? "RUNNING" : "START SERVER";
-                btnStart.Enabled = !on && game != null && !busy;
+                btnStart.Text = on ? "STOP SERVER" : "START SERVER";
+                btnStart.Fill = on ? Ui.Danger : Ui.Accent;
+                btnStart.HotFill = on ? Color.FromArgb(255, 70, 80) : Ui.AccentHot;
+                btnStart.Enabled = on ? !stopping : game != null && !busy;
+                btnStart.Invalidate();
             }
+        }
+
+        /// <summary>Start (blue) while the server is offline, Stop (red) while it runs.</summary>
+        void StyleStartButton(RoundButton button, bool online)
+        {
+            button.Text = online ? "Stop" : "Start";
+            button.Fill = online ? Ui.Danger : Ui.Accent;
+            button.HotFill = online ? Color.FromArgb(255, 70, 80) : Ui.AccentHot;
+            button.Enabled = !stopping || !online;
+            button.Invalidate();
+        }
+
+        /// <summary>Asks the game to close like the window's X button does; the mod saves and stops the server on quit.</summary>
+        async Task StopWorld()
+        {
+            var p = hosted;
+            if (p == null || SafeExited(p) || stopping) return;
+            if (!DarkBox.Show(this, Text, "Stop the server? Everyone connected is disconnected. The world is saved first.", "Stop", "Cancel", true)) return;
+
+            stopping = true;
+            UpdateHostedStatus();
+            Print("Stopping the server (saving the world)...");
+            try
+            {
+                p.Refresh();
+                p.CloseMainWindow();
+                for (int i = 0; i < 40 && !SafeExited(p); i++) await Task.Delay(500);
+
+                if (!SafeExited(p))
+                {
+                    if (DarkBox.Show(this, Text, "The game did not close within 20 seconds. Force close it? Progress since the last auto save is lost.", "Force close", "Keep waiting", true))
+                    {
+                        try { p.Kill(); } catch { }
+                    }
+                }
+            }
+            catch (Exception ex) { Print("Could not stop the game: " + ex.Message); }
+            finally
+            {
+                stopping = false;
+                UpdateHostedStatus();
+            }
+
+            if (SafeExited(p)) Print("Server stopped.");
         }
 
         void BuildServers()
@@ -607,6 +659,7 @@ namespace BZLauncher
         {
             foreach (Control c in serverList.Controls.Cast<Control>().ToList()) { serverList.Controls.Remove(c); c.Dispose(); }
             serverStatus.Clear();
+            serverButtons.Clear();
 
             if (game == null)
             {
@@ -637,7 +690,8 @@ namespace BZLauncher
                 Lbl(card, world.ModeName + "    " + maxPlayers + " players max    " + WorldStore.FormatSize(world.Bytes), 9.5f, false, Ui.Muted, Ui.D(176), Ui.D(54));
                 serverStatus[world.Id] = new KeyValuePair<Label, Label>(dot, state);
 
-                CardButton(card, "Start", 100, Ui.D(20), () => { var t = StartWorld(world); }, true);
+                var startButton = CardButton(card, "Start", 100, Ui.D(20), () => { var t = IsHosting(world.Id) ? StopWorld() : StartWorld(world); }, true);
+                serverButtons[world.Id] = startButton;
                 CardButton(card, "Manage", 110, Ui.D(130), () => OpenManage(world.Id));
                 CardButton(card, "Open world folder", 170, Ui.D(250), () => OpenFolder(Path.Combine(Paths.WorldsDir(game), world.Id)));
             }
@@ -765,7 +819,13 @@ namespace BZLauncher
             btnStart.Font = Ui.Font(11f, true);
             btnStart.Size = new Size(Ui.D(340), Ui.D(52));
             btnStart.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnStart.Click += async (s, e) => { if (cur != null) { if (Dirty()) SaveManage(); await StartWorld(cur); } };
+            btnStart.Click += async (s, e) =>
+            {
+                if (cur == null) return;
+                if (IsHosting(cur.Id)) { await StopWorld(); return; }
+                if (Dirty()) SaveManage();
+                await StartWorld(cur);
+            };
             bar.Controls.Add(btnStart);
             bar.Resize += (s, e) => btnStart.Location = new Point(bar.Width - btnStart.Width - Ui.D(16), (bar.Height - btnStart.Height) / 2);
             bottom.Controls.Add(bar);
