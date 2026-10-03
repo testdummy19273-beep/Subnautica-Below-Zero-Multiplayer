@@ -16,7 +16,7 @@ QUICK START: SubnauticaBZ-Launcher.exe  (portable, no install)
               type (LAN, ZeroTier ...) are listed there with a Copy button. Keep the game running.
   * Join      Type the host's address (192.168.1.20 or 192.168.1.20:7777) or pick a saved server and
               press Join. The game starts and connects by itself.
-  * Settings  Ports, max players, timeout and the firewall option (Multiplayer\Game\Core\Config.json).
+  * Settings  Your player name, ports, max players, timeout and the firewall option (Multiplayer\Game\Core\Config.json).
   * Game log  Shows the latest mod log, handy if something does not connect.
   Hosting and joining also still work from the game's own Multiplayer menu.
 
@@ -37,6 +37,10 @@ JOIN (in-game menu)
   Multiplayer -> Join, type the host's address (192.168.1.20 or 192.168.1.20:7777) and click Join.
 
 OPTIONS  (Multiplayer\Game\Core\Config.json - the launcher's Settings tab edits it; edit by hand with the game closed)
+  PlayerName       Your name in multiplayer (2-24 characters: letters, digits, space, _ - .). Empty = your Steam
+                   name. With a name set, nothing depends on Steam: your player id is made from the name, so
+                   keep using the same name to keep your character in a world. Every player on a server needs
+                   a different name.
   GameExePath      Full path to SubnauticaZero.exe (or its folder). Empty = auto-detect. Only used for the
                    firewall rule.
   ConfigureFirewall  true/false - allow the game through Windows Firewall when hosting.
@@ -49,6 +53,7 @@ COMMAND LINE (what the launcher uses; you can use it in a Steam shortcut too)
   SubnauticaZero.exe -bzmp-host <world id>      host an existing world
   SubnauticaZero.exe -bzmp-host new:Survival    create a world and host it
   SubnauticaZero.exe -bzmp-join 192.168.1.20:7777
+  SubnauticaZero.exe -bzmp-name Alice           use this player name for this run
 
 NOTES
   * No NetBird, lobby server or invite code is used any more. Playing over the internet needs

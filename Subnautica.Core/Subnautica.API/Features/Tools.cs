@@ -43,13 +43,36 @@
             return VersionType.NewVersionNotFound;
         }
 
+        /**
+         *
+         * Player name: the "PlayerName" option (Config.json or -bzmp-name) if set, otherwise the platform (Steam) name.
+         *
+         */
         public static string GetLoggedInName()
         {
+            var customName = GetCustomPlayerName();
+            if (customName != null)
+            {
+                return customName;
+            }
+
             return global::PlatformUtils.main.GetLoggedInUserName();
         }
 
+        /**
+         *
+         * Player id. With a custom player name the id is derived from the name, so it does not depend on Steam
+         * and stays the same between sessions. Otherwise it is the platform (Steam) id.
+         *
+         */
         public static string GetLoggedId()
         {
+            var customName = GetCustomPlayerName();
+            if (customName != null)
+            {
+                return "bzmp-" + customName.ToLowerInvariant();
+            }
+
             var userId = global::PlatformUtils.main.GetCurrentUserId();
             if (userId == "0" || userId.IsNull())
             {
@@ -57,6 +80,59 @@
             }
 
             return userId;
+        }
+
+        /**
+         *
+         * Cleaned custom player name or null if none is set. Letters, digits, space, "_", "-" and "." only, 2-24 characters.
+         *
+         */
+        public static string GetCustomPlayerName()
+        {
+            string name = null;
+
+            try
+            {
+                var args = Environment.GetCommandLineArgs();
+                for (int i = 0; i < args.Length - 1; i++)
+                {
+                    if (string.Equals(args[i], "-bzmp-name", StringComparison.OrdinalIgnoreCase))
+                    {
+                        name = args[i + 1];
+                        break;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            if (name.IsNull())
+            {
+                name = Settings.ModConfig.PlayerName.GetString("");
+            }
+
+            if (name.IsNull())
+            {
+                return null;
+            }
+
+            var clean = new System.Text.StringBuilder();
+            foreach (var c in name.Trim())
+            {
+                if (char.IsLetterOrDigit(c) || c == ' ' || c == '_' || c == '-' || c == '.')
+                {
+                    clean.Append(c);
+                }
+            }
+
+            var result = clean.ToString().Trim();
+            if (result.Length > 24)
+            {
+                result = result.Substring(0, 24).Trim();
+            }
+
+            return result.Length >= 2 ? result : null;
         }
 
         public static bool IsInStackTrace(string text)

@@ -341,6 +341,7 @@ namespace BZLauncher
         static readonly string[][] Defaults =
         {
             new[] { "ConnectionTimeout", "Connection timeout period. (Type: Number/Second, Default: 120, Min: 60, Max: 300)" },
+            new[] { "PlayerName", "Your player name in multiplayer. Leave empty to use your Steam name. 2-24 characters: letters, digits, space, _ - . (Every player on a server needs a different name.)" },
             new[] { "GameExePath", "Full path to SubnauticaZero.exe (or its folder). Leave empty to auto-detect. Example: C:/Program Files (x86)/Steam/steamapps/common/SubnauticaZero/SubnauticaZero.exe" },
             new[] { "ConfigureFirewall", "Ask once for admin permission to allow the game through the Windows Firewall when hosting. (true/false)" },
             new[] { "HostOnPort", "Port to host the game on." },
@@ -354,6 +355,7 @@ namespace BZLauncher
             {
                 case "ConnectionTimeout": return 120;
                 case "GameExePath": return "";
+                case "PlayerName": return "";
                 case "ConfigureFirewall": return true;
                 case "HostOnPort": return 7777;
                 case "MaxPlayer": return 8;

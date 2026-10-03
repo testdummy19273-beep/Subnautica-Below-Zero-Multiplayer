@@ -19,6 +19,7 @@ Run the game once and close it, then edit `Multiplayer/Game/Core/Config.json`:
 
 | Option | Meaning |
 | --- | --- |
+| `PlayerName` | Your name in multiplayer (2-24 chars). Empty = Steam name. A set name replaces Steam for the player id too, so every player just needs a different name. |
 | `GameExePath` | Path to `SubnauticaZero.exe` or its folder. Empty = auto-detect. |
 | `ConfigureFirewall` | Ask once (UAC) to allow the game through Windows Firewall when hosting. |
 | `HostOnPort` | UDP port the host listens on (default 7777). |

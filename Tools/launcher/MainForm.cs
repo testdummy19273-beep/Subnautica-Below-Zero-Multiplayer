@@ -46,7 +46,7 @@ namespace BZLauncher
         Button btnJoinSaved, btnRemoveServer, btnJoinAddress, btnSaveServer;
 
         // Settings
-        TextBox txtExe;
+        TextBox txtExe, txtPlayerName;
         CheckBox chkFirewall;
         NumericUpDown numHostPort, numJoinPort, numMaxPlayers, numTimeout;
         Button btnSaveSettings, btnBrowse2;
@@ -546,21 +546,26 @@ namespace BZLauncher
             txtExe.TabStop = false;
             btnBrowse2 = B(p, "Browse...", 470, 100, 100, (s, e) => BrowseGame(), null, 30);
 
-            L(p, "Host port (UDP)", 0, 156, true);
-            numHostPort = N(p, 0, 180, 1, 65535, 7777);
-            L(p, "Default join port", 160, 156, true);
-            numJoinPort = N(p, 160, 180, 1, 65535, 7777);
-            L(p, "Max players", 320, 156, true);
-            numMaxPlayers = N(p, 320, 180, 1, 64, 8);
-            L(p, "Connection timeout (s)", 480, 156, true);
-            numTimeout = N(p, 480, 180, 60, 300, 120);
+            L(p, "Player name (empty = your Steam name)", 0, 156, true);
+            txtPlayerName = T(p, 0, 180, 300);
+            txtPlayerName.MaxLength = 24;
+            L(p, "Every player on a server needs a different name.", 320, 184, true);
 
-            chkFirewall = new CheckBox { Text = "Ask once to open the Windows Firewall for the game when hosting (needs admin)", Location = new Point(0, 232), AutoSize = true, ForeColor = Fg };
+            L(p, "Host port (UDP)", 0, 232, true);
+            numHostPort = N(p, 0, 256, 1, 65535, 7777);
+            L(p, "Default join port", 160, 232, true);
+            numJoinPort = N(p, 160, 256, 1, 65535, 7777);
+            L(p, "Max players", 320, 232, true);
+            numMaxPlayers = N(p, 320, 256, 1, 64, 8);
+            L(p, "Connection timeout (s)", 480, 232, true);
+            numTimeout = N(p, 480, 256, 60, 300, 120);
+
+            chkFirewall = new CheckBox { Text = "Ask once to open the Windows Firewall for the game when hosting (needs admin)", Location = new Point(0, 308), AutoSize = true, ForeColor = Fg };
             p.Controls.Add(chkFirewall);
 
-            btnSaveSettings = B(p, "Save settings", 0, 280, 150, (s, e) => SaveSettings(), Accent);
-            B(p, "Open saves folder", 160, 280, 150, (s, e) => OpenFolder(game == null ? null : Paths.WorldsDir(game)));
-            B(p, "Open game folder", 320, 280, 150, (s, e) => OpenFolder(game));
+            btnSaveSettings = B(p, "Save settings", 0, 354, 150, (s, e) => SaveSettings(), Accent);
+            B(p, "Open saves folder", 160, 354, 150, (s, e) => OpenFolder(game == null ? null : Paths.WorldsDir(game)));
+            B(p, "Open game folder", 320, 354, 150, (s, e) => OpenFolder(game));
         }
 
         void LoadSettings()
@@ -570,6 +575,7 @@ namespace BZLauncher
             try
             {
                 var cfg = ConfigStore.Load(game);
+                txtPlayerName.Text = Convert.ToString(ConfigStore.Get(cfg, "PlayerName")) ?? "";
                 numHostPort.Value = Clamp(Json.ToInt(ConfigStore.Get(cfg, "HostOnPort"), 7777), numHostPort);
                 numJoinPort.Value = Clamp(Json.ToInt(ConfigStore.Get(cfg, "DefaultJoinPort"), 7777), numJoinPort);
                 numMaxPlayers.Value = Clamp(Json.ToInt(ConfigStore.Get(cfg, "MaxPlayer"), 8), numMaxPlayers);
@@ -589,8 +595,17 @@ namespace BZLauncher
             if (game == null) { MessageBox.Show(this, "Pick the game folder first (Play tab).", Text); return; }
             try
             {
+                string name = CleanPlayerName(txtPlayerName.Text);
+                if (name == null)
+                {
+                    MessageBox.Show(this, "The player name needs 2-24 characters: letters, digits, space, _ - . (or leave it empty to use your Steam name).", Text);
+                    return;
+                }
+                txtPlayerName.Text = name;
+
                 var cfg = ConfigStore.Load(game);
                 ConfigStore.Set(cfg, "GameExePath", Paths.GameExe(game).Replace('\\', '/'));
+                ConfigStore.Set(cfg, "PlayerName", name);
                 ConfigStore.Set(cfg, "HostOnPort", (int)numHostPort.Value);
                 ConfigStore.Set(cfg, "DefaultJoinPort", (int)numJoinPort.Value);
                 ConfigStore.Set(cfg, "MaxPlayer", (int)numMaxPlayers.Value);
@@ -601,6 +616,17 @@ namespace BZLauncher
             }
             catch (UnauthorizedAccessException) { Print("Access denied writing Config.json."); AskElevate(); }
             catch (Exception ex) { Print("Could not save settings: " + ex.Message); MessageBox.Show(this, ex.Message, "Could not save settings", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        }
+
+        /// <summary>Same rules as the mod: returns "" for empty, null if invalid.</summary>
+        static string CleanPlayerName(string text)
+        {
+            text = (text ?? "").Trim();
+            if (text.Length == 0) return "";
+            if (text.Length < 2 || text.Length > 24) return null;
+            foreach (var c in text)
+                if (!(char.IsLetterOrDigit(c) || c == ' ' || c == '_' || c == '-' || c == '.')) return null;
+            return text;
         }
 
         void OpenFolder(string path)

@@ -8,6 +8,7 @@
     {
         public ModConfigFormatItem ConnectionTimeout { get; set; } = new ModConfigFormatItem(120, "Connection timeout period. (Type: Number/Second, Default: 120, Min: 60, Max: 300)");
 
+        public ModConfigFormatItem PlayerName { get; set; } = new ModConfigFormatItem("", "Your player name in multiplayer. Leave empty to use your Steam name. 2-24 characters: letters, digits, space, _ - . (Every player on a server needs a different name.)");
         public ModConfigFormatItem GameExePath { get; set; } = new ModConfigFormatItem("", "Full path to SubnauticaZero.exe (or its folder). Leave empty to auto-detect. Example: C:/Program Files (x86)/Steam/steamapps/common/SubnauticaZero/SubnauticaZero.exe");
         public ModConfigFormatItem ConfigureFirewall { get; set; } = new ModConfigFormatItem(true, "Ask once for admin permission to allow the game through the Windows Firewall when hosting. (true/false)");
         public ModConfigFormatItem HostOnPort { get; set; } = new(7777, "Port to host the game on.");
@@ -30,6 +31,7 @@
                             this.ConnectionTimeout.SetValue(config.ConnectionTimeout.GetInt());
                         }
 
+                        if (config.PlayerName != null) PlayerName.SetValue(config.PlayerName.Value);
                         if (config.GameExePath != null) GameExePath.SetValue(config.GameExePath.Value);
                         if (config.ConfigureFirewall != null) ConfigureFirewall.SetValue(config.ConfigureFirewall.Value);
                         if (config.HostOnPort != null) HostOnPort.SetValue(config.HostOnPort.Value);
