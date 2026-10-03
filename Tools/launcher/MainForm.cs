@@ -12,7 +12,7 @@ namespace BZLauncher
 {
     class MainForm : Form
     {
-        const string ModVersion = "1.4.1";
+        const string ModVersion = "1.4.2";
         const string ProjectUrl = "https://github.com/testdummy19273-beep/Subnautica-Below-Zero-Multiplayer";
 
         string game;
@@ -487,6 +487,13 @@ namespace BZLauncher
             if (game == null) return;
             if (Installer.IsGameRunning())
             {
+                bool hostingNow = hosted != null && !hosted.HasExited;
+                if (arguments != null && arguments.StartsWith("-bzmp-join ") && !hostingNow)
+                {
+                    await HandOffJoin(arguments.Substring("-bzmp-join ".Length).Trim());
+                    return;
+                }
+
                 DarkBox.Show(this, Text, "Subnautica: Below Zero is already running. Close it first.");
                 return;
             }
@@ -522,6 +529,38 @@ namespace BZLauncher
                 Print("Could not start the game: " + ex.Message);
                 DarkBox.Show(this, "Could not start the game", ex.Message);
             }
+        }
+
+        // The game is already open: hand the address to it through a file the mod polls on the main menu.
+        async Task HandOffJoin(string address)
+        {
+            var file = Path.Combine(Paths.ModRoot(game), "join-request.txt");
+            try
+            {
+                Directory.CreateDirectory(Paths.ModRoot(game));
+                File.WriteAllText(file, address);
+            }
+            catch (Exception ex)
+            {
+                Print("Could not send the join request: " + ex.Message);
+                DarkBox.Show(this, "Could not send the join request", ex.Message);
+                return;
+            }
+
+            Print("Sent \"" + address + "\" to the running game...");
+            for (int i = 0; i < 12; i++)
+            {
+                await Task.Delay(500);
+                if (!File.Exists(file))
+                {
+                    Print("The running game is joining " + address + ".");
+                    return;
+                }
+            }
+
+            try { File.Delete(file); } catch { }
+            Print("The running game did not pick up the join request.");
+            DarkBox.Show(this, Text, "The running game did not react.\r\nIt must be on the main menu (use Quit to main menu if you are in a world), and it must have been started after the update. Try again, or close the game and press Join again.");
         }
 
         // ---------------------------------------------------------------- Servers

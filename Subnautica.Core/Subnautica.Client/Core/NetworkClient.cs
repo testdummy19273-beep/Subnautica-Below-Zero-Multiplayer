@@ -35,6 +35,10 @@
                 return;
             }
             Log.Info($"Connecting on {ipAddress} {port} ");
+            if (!officialServerConnect && retryConnect)
+            {
+                ErrorMessage.AddMessage($"Connecting to {ipAddress}:{port}...");
+            }
             NetworkClient.IpAddress = ipAddress;
             NetworkClient.PortNumber = port;
 
@@ -92,7 +96,8 @@
         {
             yield return new WaitForSecondsRealtime(0.1f);
 
-            int maxWait = officialServerConnect ? 50 : 10;
+            // LiteNetLib keeps trying for about 5 s; over a VPN (ZeroTier...) the first packets are slow, so wait that long and more.
+            int maxWait = officialServerConnect ? 50 : 100;
             int maxRetry = officialServerConnect ? 3 : 1;
 
             for (int j = 0; j < maxRetry; j++)
@@ -138,7 +143,8 @@
 
             if (!NetworkClient.IsConnectedToServer && NetworkClient.IsConnectingToServer)
             {
-                ErrorMessage.AddMessage(API.Features.ZeroLanguage.Get("GAME_SERVER_CONNECTING_ERROR"));
+                Log.Error($"Connection to {NetworkClient.IpAddress}:{NetworkClient.PortNumber} failed.");
+                ErrorMessage.AddMessage(API.Features.ZeroLanguage.Get("GAME_SERVER_CONNECTING_ERROR") + $" ({NetworkClient.IpAddress}:{NetworkClient.PortNumber})");
                 NetworkClient.Disconnect();
 
                 ZeroGame.StopLoadingScreen();

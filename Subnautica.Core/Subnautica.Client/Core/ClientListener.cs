@@ -30,6 +30,8 @@
             NetworkClient.IsConnectedToServer = false;
             NetworkClient.IsConnectingToServer = false;
 
+            Log.Info($"Client disconnected from {NetworkClient.IpAddress}:{NetworkClient.PortNumber}, reason: {disconnectInfo.Reason}");
+
             var rejectType = this.GetRejectType(disconnectInfo);
             if (rejectType == ConnectionSignal.ServerFull)
             {

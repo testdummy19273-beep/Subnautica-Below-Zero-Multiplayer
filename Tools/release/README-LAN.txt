@@ -19,7 +19,8 @@ QUICK START: SubnauticaBZ-Launcher.exe  (portable, no install)
                type (LAN, ZeroTier ...) with a Copy button, Open world folder, Back up now, Restore a backup
                and Delete server.
   * Join       Type the host's address (192.168.1.20 or 192.168.1.20:7777), or pick a saved server, and press
-               Join. The game starts and connects by itself.
+               Join. The game starts and connects by itself. If the game is already open on its main menu,
+               Join sends the address to it instead (no restart needed; in a world, quit to the menu first).
   * Options    Your player name, default join port and connection timeout.
   * Game log   Shows the latest mod log, handy if something does not connect.
   Hosting and joining also still work from the game's own Multiplayer menu.
@@ -40,6 +41,13 @@ HOST (in-game menu)
 
 JOIN (in-game menu)
   Multiplayer -> Join, type the host's address (192.168.1.20 or 192.168.1.20:7777) and click Join.
+
+OVER ZEROTIER / ANOTHER VPN
+  * Everyone joins the same ZeroTier network and is authorized in ZeroTier Central (both machines online).
+  * The host gives out its ZeroTier address (Manage page lists every address, with the adapter name).
+  * Type it with the port if the world is not on 7777, e.g. 10.147.17.5:7777. The in-game box now accepts ':'.
+  * The first connection over a VPN can take a few seconds; the game waits up to 10 seconds.
+  * If it still fails, the game log (Game log page) says why: timeout, rejected, or version mismatch.
 
 OPTIONS  (Multiplayer\Game\Core\Config.json - the launcher's Settings tab edits it; edit by hand with the game closed)
   PlayerName       Your name in multiplayer (2-24 characters: letters, digits, space, _ - .). Empty = your Steam

@@ -220,6 +220,13 @@
             TMP_InputField inputField = container.transform.Find("InputField").GetComponent<TMP_InputField>();
             inputField.text = "";
 
+            // The cloned box is the game's e-mail box, which rejects ':' (needed for ip:port) and long text.
+            inputField.contentType = TMP_InputField.ContentType.Standard;
+            inputField.characterValidation = TMP_InputField.CharacterValidation.None;
+            inputField.lineType = TMP_InputField.LineType.SingleLine;
+            inputField.characterLimit = 0;
+            inputField.onValidateInput = null;
+
             TextMeshProUGUI placeholder = inputField.placeholder.GetComponent<TextMeshProUGUI>();
             placeholder.SetText(placeHolderName, true);
             placeholder.GetComponent<TranslationLiveUpdate>().translationKey = placeHolderName;

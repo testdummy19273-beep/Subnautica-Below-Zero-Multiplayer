@@ -53,7 +53,7 @@
             { "API_WEB_SERVER_RETURN_NULL", "There was no response from the server." },
             { "API_SERIALIZE_ERROR", "There is a problem in the parsing of data." },
             { "API_CLIENT_TO_HOST_JOIN_FAILED", "Connecting to the server failed. Try again." },
-            { "GAME_INVITE_CODE_PLACEHOLDER", "Enter the host IP address (e.g. 192.168.1.20)" },
+            { "GAME_INVITE_CODE_PLACEHOLDER", "IP or IP:port (e.g. 192.168.1.20:7777)" },
             { "GAME_INVITE_CODE_EMPTY_ERROR", "Please enter the host IP address." },
             { "GAME_INVITE_CODE_OR_IP", "Host IP Address (LAN)" },
             { "GAME_INVITE_CODE", "Invite Code" },

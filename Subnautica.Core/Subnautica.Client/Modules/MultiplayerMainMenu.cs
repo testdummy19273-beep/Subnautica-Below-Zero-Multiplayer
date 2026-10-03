@@ -65,6 +65,63 @@ namespace Subnautica.Client.Modules
             {
                 CoroutineHost.StartCoroutine(RunLaunchRequest(launchRequest));
             }
+
+            CoroutineHost.StartCoroutine(PollJoinRequestFile());
+        }
+
+        /// <summary>
+        /// While the main menu is open, picks up "join-request.txt" (written by the launcher's Join button when the game is already running).
+        /// A request older than 15 seconds is stale (the game was inside a world when it was written) and is dropped.
+        /// </summary>
+        private static IEnumerator PollJoinRequestFile()
+        {
+            var path = Paths.GetLauncherGamePath() + "join-request.txt";
+
+            while (MainMenuRightSide.main != null)
+            {
+                yield return new WaitForSecondsRealtime(1f);
+
+                try
+                {
+                    if (MainMenuRightSide.main == null || !File.Exists(path))
+                    {
+                        continue;
+                    }
+
+                    var address = File.ReadAllText(path).Trim();
+                    var isFresh = (DateTime.UtcNow - File.GetLastWriteTimeUtc(path)).TotalSeconds < 15;
+                    File.Delete(path);
+
+                    if (!isFresh || address.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    if (IsClicked || NetworkClient.IsConnectingToServer || NetworkClient.IsConnectedToServer || NetworkServer.IsConnecting() || NetworkServer.IsConnected())
+                    {
+                        continue;
+                    }
+
+                    Log.Info($"Launcher request: join {address} (running game)");
+                    JoinAddress(address);
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"PollJoinRequestFile: {e}");
+                }
+            }
+        }
+
+        private static void JoinAddress(string address)
+        {
+            if (LanHost.TryParseAddress(address, Settings.ModConfig.DefaultJoinPort.GetInt(7777), out var hostAddress, out var hostPort))
+            {
+                NetworkClient.Connect(hostAddress, hostPort, false);
+            }
+            else
+            {
+                Log.Error($"Launcher request: invalid server address '{address}'.");
+            }
         }
 
         /// <summary>
@@ -81,14 +138,7 @@ namespace Subnautica.Client.Modules
                 {
                     Log.Info($"Launcher request: join {request.Value}");
 
-                    if (LanHost.TryParseAddress(request.Value, Settings.ModConfig.DefaultJoinPort.GetInt(7777), out var hostAddress, out var hostPort))
-                    {
-                        NetworkClient.Connect(hostAddress, hostPort, false);
-                    }
-                    else
-                    {
-                        Log.Error($"Launcher request: invalid server address '{request.Value}'.");
-                    }
+                    JoinAddress(request.Value);
 
                     yield break;
                 }
