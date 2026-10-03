@@ -3,28 +3,40 @@ Subnautica Below Zero Multiplayer - LAN / direct IP edition
 
 Everyone needs the SAME game version. This build was compiled against the Steam build of
 SubnauticaZero_Data\Managed\Assembly-CSharp.dll dated 4 Oct 2025. If Steam updates the game,
-run Install.bat again (and make sure all players are on the same version).
+open the launcher and press Update / Repair (or run Install.bat again), and make sure all players
+are on the same version.
 
-INSTALL (each player)
-  1. Unzip this folder anywhere.
-  2. Run Install.bat. If your game is not in the default Steam folder, either run it from a
-     command prompt as   Install.bat "D:\Games\SubnauticaZero"   or type the folder when asked.
-     It keeps a backup of the original game file (Assembly-CSharp.dll.original) and patches your
-     own copy - no game files are redistributed in this zip.
-  3. To remove it again, run Uninstall.bat.
+QUICK START: SubnauticaBZ-Launcher.exe  (portable, no install)
+  Unzip this folder anywhere and keep the Multiplayer and Patcher folders next to the launcher.
+  * Play      Finds your game (Steam) or lets you Browse to SubnauticaZero.exe. Install / Update /
+              Uninstall the mod and Launch the game. Your original Assembly-CSharp.dll is backed up as
+              Assembly-CSharp.dll.original; no game files are redistributed in this zip.
+  * Host      Pick a world (or create a new one: Survival / Freedom / Hardcore / Creative) and press
+              Host. The game starts and goes straight into hosting it. The addresses your friends
+              type (LAN, ZeroTier ...) are listed there with a Copy button. Keep the game running.
+  * Join      Type the host's address (192.168.1.20 or 192.168.1.20:7777) or pick a saved server and
+              press Join. The game starts and connects by itself.
+  * Settings  Ports, max players, timeout and the firewall option (Multiplayer\Game\Core\Config.json).
+  * Game log  Shows the latest mod log, handy if something does not connect.
+  Hosting and joining also still work from the game's own Multiplayer menu.
 
-HOST
+MANUAL INSTALL (without the launcher)
+  1. Run Install.bat. If your game is not in the default Steam folder, run it from a command prompt as
+     Install.bat "D:\Games\SubnauticaZero"   or type the folder when asked.
+  2. To remove it again, run Uninstall.bat (or Uninstall in the launcher).
+
+HOST (in-game menu)
   1. Start the game, Multiplayer -> Host, create a new world (or load a hosted save).
   2. The first time, Windows asks for administrator permission to open the firewall for the game.
-     Say yes (it only adds an "allow SubnauticaZero.exe" rule). Set ConfigureFirewall to false in
-     Config.json if you do not want that.
+     Say yes (it only adds an "allow SubnauticaZero.exe" rule). Turn the firewall option off in
+     Settings if you do not want that.
   3. In the intro screen, or in the in-game menu ("Show Server IP"), your LAN address is shown,
      e.g. 192.168.1.20:7777. Tell your friends that address.
 
-JOIN
+JOIN (in-game menu)
   Multiplayer -> Join, type the host's address (192.168.1.20 or 192.168.1.20:7777) and click Join.
 
-OPTIONS  (Multiplayer\Game\Core\Config.json - appears after the first launch, close the game to edit)
+OPTIONS  (Multiplayer\Game\Core\Config.json - the launcher's Settings tab edits it; edit by hand with the game closed)
   GameExePath      Full path to SubnauticaZero.exe (or its folder). Empty = auto-detect. Only used for the
                    firewall rule.
   ConfigureFirewall  true/false - allow the game through Windows Firewall when hosting.
@@ -33,9 +45,15 @@ OPTIONS  (Multiplayer\Game\Core\Config.json - appears after the first launch, cl
   MaxPlayer        Maximum players.
   ConnectionTimeout  Seconds before a connection times out.
 
+COMMAND LINE (what the launcher uses; you can use it in a Steam shortcut too)
+  SubnauticaZero.exe -bzmp-host <world id>      host an existing world
+  SubnauticaZero.exe -bzmp-host new:Survival    create a world and host it
+  SubnauticaZero.exe -bzmp-join 192.168.1.20:7777
+
 NOTES
   * No NetBird, lobby server or invite code is used any more. Playing over the internet needs
-    port forwarding of the host port (UDP) or a VPN of your own; LAN needs nothing.
+    port forwarding of the host port (UDP) or a VPN of your own (ZeroTier works); LAN needs nothing.
+  * The server runs inside the host's game, so the host has to keep the game running while others play.
   * This is an unofficial port of a mod built for an older game build. Not every feature has been
     tested in-game. Back up your saves.
   * Based on the Subnautica Below Zero Multiplayer mod by BOT Benson (ismail0234) and the

@@ -59,6 +59,102 @@ namespace Subnautica.Client.Modules
             MainMenuRightSide.main.groups.Add(joinGameGroup.GetComponent<MainMenuGroup>());
             MainMenuRightSide.main.groups.Add(addServerGroup.GetComponent<MainMenuGroup>());
             MainMenuRightSide.main.groups.Add(createServerGroup.GetComponent<MainMenuGroup>());
+
+            var launchRequest = LaunchRequest.Consume();
+            if (launchRequest != null)
+            {
+                CoroutineHost.StartCoroutine(RunLaunchRequest(launchRequest));
+            }
+        }
+
+        /// <summary>
+        /// Executes a host/join request the launcher passed on the command line (see LaunchRequest).
+        /// </summary>
+        public static IEnumerator RunLaunchRequest(LaunchRequest request)
+        {
+            // Give the main menu a moment to finish building before taking over.
+            yield return new WaitForSecondsRealtime(1.5f);
+
+            try
+            {
+                if (request.IsJoin)
+                {
+                    Log.Info($"Launcher request: join {request.Value}");
+
+                    if (LanHost.TryParseAddress(request.Value, Settings.ModConfig.DefaultJoinPort.GetInt(7777), out var hostAddress, out var hostPort))
+                    {
+                        NetworkClient.Connect(hostAddress, hostPort, false);
+                    }
+                    else
+                    {
+                        Log.Error($"Launcher request: invalid server address '{request.Value}'.");
+                    }
+
+                    yield break;
+                }
+
+                Log.Info($"Launcher request: host {request.Value}");
+
+                string serverId = request.Value;
+                if (request.IsNewWorld)
+                {
+                    if (!TryParseGameMode(request.NewWorldGameMode, out var gameMode))
+                    {
+                        Log.Error($"Launcher request: unknown game mode '{request.NewWorldGameMode}'.");
+                        yield break;
+                    }
+
+                    serverId = NetworkServer.CreateNewServer(gameMode);
+                }
+
+                StartHostedServer(serverId);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Launcher request failed: {e}");
+                ZeroGame.StopLoadingScreen();
+                IsClicked = false;
+            }
+        }
+
+        private static bool TryParseGameMode(string text, out GameModePresetId gameMode)
+        {
+            if (Enum.TryParse(text, true, out gameMode) && Enum.IsDefined(typeof(GameModePresetId), gameMode))
+            {
+                return gameMode != GameModePresetId.Custom;
+            }
+
+            gameMode = GameModePresetId.Survival;
+            return false;
+        }
+
+        private static void StartHostedServer(string serverId)
+        {
+            if (IsClicked || NetworkServer.IsConnecting() || NetworkServer.IsConnected())
+            {
+                return;
+            }
+
+            if (!NetworkServer.GetHostServerList().Any(q => q.Id == serverId))
+            {
+                Log.Error($"Launcher request: world '{serverId}' was not found.");
+                ErrorMessage.AddMessage(ZeroLanguage.Get("GAME_NOT_FOUND_SERVER"));
+                return;
+            }
+
+            IsClicked = true;
+
+            ShowHostLoadingScreen();
+
+            if (NetworkServer.StartServer(serverId, Tools.GetLoggedId()))
+            {
+                NetworkClient.Connect(NetworkServer.DefaultLocalIpAddress, NetworkServer.DefaultPort);
+            }
+            else
+            {
+                ZeroGame.StopLoadingScreen();
+                IsClicked = false;
+            }
         }
 
         public static void OnSinglePlayerButtonClick()

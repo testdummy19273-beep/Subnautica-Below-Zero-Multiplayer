@@ -6,11 +6,12 @@ Fork of the Subnautica Below Zero Multiplayer mod made for playing on a LAN with
 - Host a world straight from the game menu (Multiplayer -> Host). The host's LAN IP is shown in the intro screen and under "Show Server IP" in the in-game menu.
 - Join by typing `192.168.x.x` or `192.168.x.x:port`.
 - Option to set the path to `SubnauticaZero.exe` (`GameExePath` in `Config.json`, used for the Windows Firewall rule; auto-detected if empty).
+- Portable launcher (`SubnauticaBZ-Launcher.exe`): installs/repairs the mod, launches the game, hosts or joins straight from the launcher, and edits the settings. Nitrox-style, but the server still runs inside the host's game.
 - Updated to work with the current Steam build of Subnautica: Below Zero (Oct 2025).
 
 ## Install (players)
-Download `SubnauticaBZ-Multiplayer-LAN.zip` from the Releases page, unzip, run `Install.bat` and follow `README-LAN.txt`.
-`Install.bat` patches *your own* copy of `Assembly-CSharp.dll` (a backup is kept) so no game files are redistributed.
+Download `SubnauticaBZ-Multiplayer-LAN.zip` from the Releases page, unzip, run `SubnauticaBZ-Launcher.exe` (or `Install.bat`) and follow `README-LAN.txt`.
+The installer patches *your own* copy of `Assembly-CSharp.dll` (a backup is kept) so no game files are redistributed.
 Everyone must be on the same game version.
 
 ## Config

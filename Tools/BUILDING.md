@@ -25,8 +25,11 @@ You need the .NET SDK (8.0 is fine), your own Subnautica: Below Zero install, an
    dotnet build Subnautica.Core/Subnautica.Core.csproj -c Release
    dotnet build Subnautica.Loader/Subnautica.Loader.csproj -c Release
    dotnet build Tools/bootstrap -c Release
-   python Tools/release/make_package.py      # writes out/SubnauticaBZ-Multiplayer-LAN.zip
+   dotnet build Tools/launcher -c Release   # SubnauticaBZ-Launcher.exe (Windows Forms, net472)
+   python Tools/release/make_package.py      # run the builds above first; writes out/SubnauticaBZ-Multiplayer-LAN.zip
    ```
 
 `Tools/patchcheck` is an optional sanity check: it lists Harmony patches whose target method no longer exists in the game
 (`patchcheck.exe "<Managed dir>" Subnautica.Core.dll targets`). Run it after a game update.
+
+The launcher also has a scripting mode used for testing: `SubnauticaBZ-Launcher.exe --cli <status|install|uninstall> "<game folder>"` (output goes to `launcher-cli.log` next to the exe), and `--tab <Play|Host|Join|Settings|"Game log">` opens a tab directly.

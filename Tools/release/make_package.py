@@ -8,6 +8,7 @@ loader = os.path.join(B, 'Subnautica.Loader', 'bin', 'Release', 'net472', 'Subna
 spawn = os.path.join(B, 'Data', 'SpawnPoints.bin')
 gt = os.path.join(B, 'Tools', 'gametool', 'bin', 'Release', 'net472')
 bs = os.path.join(B, 'Tools', 'bootstrap', 'bin', 'Release', 'net472', 'SubnauticaBootstrap.dll')
+launcher = os.path.join(B, 'Tools', 'launcher', 'bin', 'Release', 'net472', 'SubnauticaBZ-Launcher.exe')
 src = HERE
 
 pkg = os.path.join(B, 'out', 'pkg', 'SubnauticaBZ-Multiplayer-LAN')
@@ -26,6 +27,7 @@ for f in deps:
 for f in ['gametool.exe', 'gametool.exe.config', 'Mono.Cecil.dll', 'Mono.Cecil.Mdb.dll', 'Mono.Cecil.Pdb.dll', 'Mono.Cecil.Rocks.dll']:
     shutil.copy(os.path.join(gt, f), os.path.join(pkg, 'Patcher'))
 shutil.copy(bs, os.path.join(pkg, 'Patcher'))
+shutil.copy(launcher, pkg)
 
 for f in ['Install.bat', 'Uninstall.bat', 'README-LAN.txt']:
     data = open(os.path.join(src, f), 'rb').read().decode('utf-8').replace('\r\n', '\n').replace('\n', '\r\n')
