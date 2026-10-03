@@ -38,6 +38,55 @@
                     }
                 }
             }
+            else if (Network.IsMultiplayerActive)
+            {
+                CreateResyncButton();
+            }
+        }
+
+        /**
+         *
+         * Joined players get a Resync button: quit to the main menu and rejoin the same server in one click.
+         * (The join packet drives a full world load, so a clean reload is the safe way to resync.)
+         *
+         */
+        private static void CreateResyncButton()
+        {
+            var parent = IngameMenu.main.helpButton.transform.parent;
+            foreach (var item in parent.GetComponentsInChildren<Button>(true))
+            {
+                if (item.name == "ResyncButton")
+                {
+                    return;
+                }
+            }
+
+            var resyncButton = GameObject.Instantiate(IngameMenu.main.helpButton.gameObject, parent);
+            resyncButton.name = "ResyncButton";
+            resyncButton.SetActive(true);
+            resyncButton.GetComponentInChildren<TextMeshProUGUI>().text = ZeroLanguage.Get("GAME_RESYNC", "Resync (reconnect)");
+            resyncButton.GetComponent<RectTransform>().SetAsFirstSibling();
+
+            if (resyncButton.TryGetComponent<Button>(out var button))
+            {
+                button.onClick = new Button.ButtonClickedEvent();
+                button.onClick.AddListener(Resync);
+            }
+        }
+
+        private static void Resync()
+        {
+            if (string.IsNullOrEmpty(NetworkClient.IpAddress))
+            {
+                return;
+            }
+
+            var address = string.Format("{0}:{1}", NetworkClient.IpAddress, NetworkClient.PortNumber);
+
+            Log.Info($"Resync: leaving and rejoining {address}");
+
+            LaunchRequest.QueueJoin(address);
+            ZeroGame.QuitToMainMenu();
         }
 
         /**

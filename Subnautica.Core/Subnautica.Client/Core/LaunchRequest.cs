@@ -47,6 +47,15 @@ namespace Subnautica.Client.Core
             return request;
         }
 
+        /// <summary>
+        /// Queues a join that runs the next time the main menu loads (used by the in-game Resync button).
+        /// </summary>
+        public static void QueueJoin(string address)
+        {
+            IsParsed = true;
+            Pending = new LaunchRequest { IsJoin = true, Value = address };
+        }
+
         public static LaunchRequest Parse(string[] args)
         {
             if (args == null)
