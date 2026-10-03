@@ -103,6 +103,9 @@ namespace Subnautica.Events.Patches.Fixes.Game
 
                 World.SetLoaded(true);
 
+                // The host's "CreateServer" loading item (ZeroGame.ShowLoadingScreen) is only removed on failure elsewhere.
+                ZeroGame.StopLoadingScreen();
+
                 yield return FinishGameStart(__instance);
             }
             else
