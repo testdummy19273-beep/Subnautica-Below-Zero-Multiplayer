@@ -87,6 +87,88 @@
             return String.Format("{0}{1}{2}{3}", GetLauncherGamePath("Core"), foldername, DS, filename);
         }
 
+        /**
+         *
+         * SubnauticaZero.exe yolunu döner.
+         *
+         * Öncelik sırası:
+         *   1) Config.json içindeki "GameExePath" değeri
+         *   2) Şu an çalışan oyunun exe'si (mod oyunun içinde çalışır)
+         *   3) Steam'in varsayılan kurulum klasörleri
+         *
+         * Bulunamazsa null döner.
+         *
+         */
+        public static string GetGameExePath()
+        {
+            try
+            {
+                var configured = Settings.ModConfig.GameExePath.GetString();
+                if (configured.IsNotNull())
+                {
+                    configured = configured.Trim().Trim('"');
+
+                    if (Directory.Exists(configured))
+                    {
+                        configured = Path.Combine(configured, GameExeName);
+                    }
+
+                    if (File.Exists(configured))
+                    {
+                        return Path.GetFullPath(configured);
+                    }
+
+                    Log.Error($"Paths.GetGameExePath: Configured GameExePath does not exist: {configured}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Paths.GetGameExePath Exception: {ex}");
+            }
+
+            try
+            {
+                var current = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+                if (current.IsNotNull() && string.Equals(Path.GetFileName(current), GameExeName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return current;
+                }
+            }
+            catch (Exception)
+            {
+                // MainModule erişimi bazı durumlarda reddedilebilir.
+            }
+
+            var programFiles = new[]
+            {
+                Environment.GetEnvironmentVariable("ProgramFiles(x86)"),
+                Environment.GetEnvironmentVariable("ProgramFiles"),
+            };
+
+            foreach (var root in programFiles)
+            {
+                if (root.IsNull())
+                {
+                    continue;
+                }
+
+                var candidate = Path.Combine(root, "Steam", "steamapps", "common", "SubnauticaZero", GameExeName);
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         *
+         * Oyunun exe dosya adı.
+         *
+         */
+        public const string GameExeName = "SubnauticaZero.exe";
+
         public static string GetGameDependenciesPath(string filename = null)
         {
             if (filename == null)

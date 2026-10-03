@@ -21,7 +21,7 @@ namespace Subnautica.Client.Synchronizations.Processors.Player
         public override bool OnDataReceived(NetworkPacket networkPacket)
         {
             var packet = networkPacket.GetPacket<ServerModel.PlayerUpdatedArgs>();
-            if (packet.GetPacketOwnerId() == 0 || !World.IsLoaded || IntroVignette.isIntroActive)
+            if (packet.GetPacketOwnerId() == 0 || !World.IsLoaded || General.IntroProcessor.IsIntroActive)
             {
                 return false;
             }

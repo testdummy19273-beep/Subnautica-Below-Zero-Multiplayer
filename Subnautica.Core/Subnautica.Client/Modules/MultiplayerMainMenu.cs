@@ -95,34 +95,21 @@ namespace Subnautica.Client.Modules
 
         public static void OnAddServerButtonClick()
         {
-            var serverInviteCode = UserInterfaceElements.GetInputText("GAME_INVITE_CODE").Trim();
-            if (serverInviteCode.IsNull())
+            var serverAddress = UserInterfaceElements.GetInputText("GAME_INVITE_CODE").Trim();
+            if (serverAddress.IsNull())
             {
                 UserInterfaceElements.SetInputErrorMessage("GAME_INVITE_CODE", ZeroLanguage.Get("GAME_INVITE_CODE_EMPTY_ERROR"));
                 return;
             }
 
-            if (!serverInviteCode.Contains("."))
+            var defaultPort = Settings.ModConfig.DefaultJoinPort.GetInt(7777);
+            if (!LanHost.TryParseAddress(serverAddress, defaultPort, out var hostAddress, out var hostPort))
             {
-                UserInterfaceElements.ClearInputText("GAME_INVITE_CODE");
-
-                UWE.CoroutineHost.StartCoroutine(Network.InviteCode.JoinServerAsync(serverInviteCode, (LobbyJoinServerResponseFormat response) =>
-                {
-                    NetworkClient.Connect(response.ServerIp, response.ServerPort);
-                }));
+                UserInterfaceElements.SetInputErrorMessage("GAME_INVITE_CODE", ZeroLanguage.Get("GAME_SERVER_IP_INVALID_ERROR", "Invalid IP address. Example: 192.168.1.20"));
                 return;
             }
-            Log.Info("DefaultJoinPort parsing start");
-            int port = Settings.ModConfig.DefaultJoinPort.GetInt();
-            string ip = serverInviteCode;
-            if (serverInviteCode.Contains(":"))
-            {
-                var splitted = serverInviteCode.Split(':');
-                ip = splitted[0];
-                port = int.Parse(splitted[1]);
-            }
 
-            NetworkClient.Connect(ip, port, false);
+            NetworkClient.Connect(hostAddress, hostPort, false);
         }
 
         public static void OnHostCreateServerButtonClick()
@@ -215,14 +202,17 @@ namespace Subnautica.Client.Modules
 
                 IsClicked = true;
 
-                UWE.CoroutineHost.StartCoroutine(Network.InviteCode.CreateServerAsync((LobbyCreateServerResponse response) =>
+                ShowHostLoadingScreen();
+
+                if (NetworkServer.StartServer(server.Id, Tools.GetLoggedId()))
                 {
-                    NetworkServer.StartServer(server.Id, Tools.GetLoggedId());
-                    NetworkClient.Connect(response.ServerIp, response.ServerPort);
-                }, () =>
+                    NetworkClient.Connect(NetworkServer.DefaultLocalIpAddress, NetworkServer.DefaultPort);
+                }
+                else
                 {
+                    ZeroGame.StopLoadingScreen();
                     IsClicked = false;
-                }));
+                }
             }
 
             return false;
@@ -351,23 +341,27 @@ namespace Subnautica.Client.Modules
             {
                 IsClicked = true;
 
-                UWE.CoroutineHost.StartCoroutine(Network.InviteCode.CreateServerAsync((LobbyCreateServerResponse response) =>
-                {
-                    var serverId = NetworkServer.CreateNewServer(gameModeId);
+                ShowHostLoadingScreen();
 
-                    if (NetworkServer.StartServer(serverId, Tools.GetLoggedId()))
-                    {
-                        NetworkClient.Connect(response.ServerIp, response.ServerPort);
-                    }
-                    else
-                    {
-                        OnHostGameButtonClick();
-                    }
-                }, () =>
+                var serverId = NetworkServer.CreateNewServer(gameModeId);
+
+                if (NetworkServer.StartServer(serverId, Tools.GetLoggedId()))
                 {
+                    NetworkClient.Connect(NetworkServer.DefaultLocalIpAddress, NetworkServer.DefaultPort);
+                }
+                else
+                {
+                    ZeroGame.StopLoadingScreen();
                     IsClicked = false;
-                }));
+                    OnHostGameButtonClick();
+                }
             }
+        }
+
+        private static void ShowHostLoadingScreen()
+        {
+            ZeroGame.ShowLoadingScreen();
+            LanHost.EnsureFirewallRule();
         }
 
         public const string MULTIPLAYER_BASE_GROUP_NAME = "MultiplayerBase";

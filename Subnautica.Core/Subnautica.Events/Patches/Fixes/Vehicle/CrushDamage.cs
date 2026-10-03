@@ -24,7 +24,7 @@
 
                 if (ZeroVector3.Distance(__instance.transform.position, global::Player.main.transform.position) < 225f)
                 {
-                    if (!Mathf.Approximately(a, __instance.crushDepth) && !uGUI.isLoading)
+                    if (!Mathf.Approximately(a, __instance.crushDepth) && !WaitScreen.IsWaiting)
                     {
                         ErrorMessage.AddMessage(global::Language.main.GetFormat("CrushDepthNow", __instance.crushDepth));
                     }

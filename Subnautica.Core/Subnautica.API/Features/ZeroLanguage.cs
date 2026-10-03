@@ -53,15 +53,17 @@
             { "API_WEB_SERVER_RETURN_NULL", "There was no response from the server." },
             { "API_SERIALIZE_ERROR", "There is a problem in the parsing of data." },
             { "API_CLIENT_TO_HOST_JOIN_FAILED", "Connecting to the server failed. Try again." },
-            { "GAME_INVITE_CODE_PLACEHOLDER", "Enter an Invite Code or IP Address." },
-            { "GAME_INVITE_CODE_EMPTY_ERROR", "Please enter an Invite Code or IP Address." },
-            { "GAME_INVITE_CODE_OR_IP", "Invite Code or IP Address" },
+            { "GAME_INVITE_CODE_PLACEHOLDER", "Enter the host IP address (e.g. 192.168.1.20)" },
+            { "GAME_INVITE_CODE_EMPTY_ERROR", "Please enter the host IP address." },
+            { "GAME_INVITE_CODE_OR_IP", "Host IP Address (LAN)" },
             { "GAME_INVITE_CODE", "Invite Code" },
             { "GAME_CONNECTION_SERVER_FULL", "Server Full" },
             { "GAME_CONNECTION_SERVER_VERSION_MISMATCH", "The server version and your version do not match." },
             { "GAME_CONNECTION_ERROR_POPUP_TITLE", "Connection Error" },
             { "GAME_CONNECTION_FIX_ERROR", "If your friend cannot connect to your server or you cannot connect to your friend's server. There is no other solution other than these 3 steps.\n\n1. Steam Offline Mode (Do not use Steam in offline mode)\n2. Any VPN Program (AvastVPN, NordVPN, etc. / Close your VPN Program and try again)\n3. Antivirus Problem (Disable your antivirus program and try it)\n\nImportant Note: Both parties need to check these steps." },
-            { "GAME_SHOW_INVITE_CODE", "Show Invite Code" }
+            { "GAME_SHOW_INVITE_CODE", "Show Server IP" },
+            { "GAME_SHOW_SERVER_IP", "Show Server IP" },
+            { "GAME_SERVER_IP_INVALID_ERROR", "Invalid IP address. Example: 192.168.1.20" }
         };
 
         public static bool LoadLanguage(string language, bool forceDownload = false)
@@ -82,6 +84,12 @@
             }
 
             return languageKey;
+        }
+
+        public static string Get(string languageKey, string defaultText)
+        {
+            var text = Get(languageKey);
+            return text == languageKey ? defaultText : text;
         }
 
         public static string GetStoryWaitingPlayers(byte playerCount, byte maxPlayer)

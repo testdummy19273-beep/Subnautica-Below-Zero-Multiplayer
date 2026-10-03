@@ -46,8 +46,6 @@
 
         public static MultiplayerCreatureManager Creatures { get; private set; } = new MultiplayerCreatureManager();
 
-        public static InviteCode InviteCode { get; private set; } = new InviteCode();
-
         public static void Dispose()
         {
             try
@@ -68,7 +66,6 @@
                 Network.DataStorage.Dispose();
                 Network.EntityDatabase.Dispose();
                 Network.Creatures.Dispose();
-                Network.InviteCode.Dispose();
 
                 Entity.Dispose();
                 Interact.Dispose();

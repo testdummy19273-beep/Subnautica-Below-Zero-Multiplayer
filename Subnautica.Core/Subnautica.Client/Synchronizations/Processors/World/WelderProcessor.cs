@@ -46,7 +46,6 @@ namespace Subnautica.Client.Synchronizations.Processors.World
                 if (handItem != null && handItem.item.TryGetComponent<Welder>(out var welder))
                 {
                     welder.energyMixin.ConsumeEnergy(welder.weldEnergyCost);
-                    welder.timeLastWelded = Time.time;
 
                     if (welder.fxControl != null && !welder.fxIsPlaying)
                     {

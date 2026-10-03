@@ -45,16 +45,6 @@ public class BaseWaterPark
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(CreatureEgg), "OnEnable")]
-    private static void CreatureEgg_OnEnable(CreatureEgg __instance)
-    {
-        if (Network.IsMultiplayerActive && __instance.gameObject.transform.parent && __instance.gameObject.transform.parent.GetComponentInParent<WaterPark>())
-        {
-            __instance.OnAddToWaterPark();
-        }
-    }
-
-    [HarmonyPrefix]
     [HarmonyPatch(typeof(CreatureEgg), "UpdateProgress")]
     private static bool CreatureEgg_UpdateProgress(CreatureEgg __instance)
     {

@@ -38,12 +38,29 @@
             return true;
         }
 
+        public static bool IsIntroActive { get; set; }
+
         public static void OnIntroChecking(IntroCheckingEventArgs ev)
         {
-            if (Network.Session.Current.IsFirstLogin && GameModeManager.GetOption<bool>(GameOption.Story))
+            var isMultiplayerIntro = Network.Session.Current.IsFirstLogin && GameModeManager.GetOption<bool>(GameOption.Story);
+
+            if (ev.IsPlaying)
+            {
+                if (isMultiplayerIntro)
+                {
+                    ev.IsAllowed = false;
+
+                    ev.Gui.coroutine = ev.Gui.StartCoroutine(IntroProcessor.InitalizeIntroAsync(ev.IntroManager, ev.Gui, ev.OnIntroDone));
+                    ManagedUpdate.Subscribe(ManagedUpdate.Queue.UpdateAfterInput, ev.Gui.OnUpdate);
+                    InputHandlerStack.main.Push(ev.Gui);
+                }
+
+                return;
+            }
+
+            if (isMultiplayerIntro)
             {
                 ev.IsAllowed = false;
-                ev.WaitingMethod = IntroProcessor.IntroCheckingAsync();
             }
             else
             {
@@ -56,26 +73,9 @@
             }
         }
 
-        private static IEnumerator IntroCheckingAsync()
+        private static IEnumerator InitalizeIntroAsync(ExpansionIntroManager introManager, uGUI_SceneIntro gui, System.Action onIntroDone)
         {
-            while (!LightmappedPrefabs.main || LightmappedPrefabs.main.IsWaitingOnLoads() || uGUI.main.loading.IsLoading || PAXTerrainController.main.isWorking)
-            {
-                yield return null;
-            }
-
-            var data = IntroVignette.main.player.GetGameData(SaveLoadManager.main.storyVersion);
-            if (data)
-            {
-                IntroVignette.main.player.SetPosition(data.storyStartLocation.position, Quaternion.Euler(data.storyStartLocation.rotation));
-
-                uGUI.main.intro.coroutine = CoroutineHost.StartCoroutine(IntroProcessor.InitalizeIntroAsync(UnityEngine.Object.Instantiate<ExpansionIntroManager>(data.introManagerPrefab), uGUI.main.intro));
-                InputHandlerStack.main.Push(uGUI.main.intro);
-            }
-        }
-
-        private static IEnumerator InitalizeIntroAsync(ExpansionIntroManager introManager, uGUI_ExpansionIntro gui)
-        {
-            IntroVignette.isIntroActive = true;
+            IntroProcessor.IsIntroActive = true;
 
             if (FPSInputModule.current)
             {
@@ -107,7 +107,7 @@
 
                 while (!GameInput.GetButtonDown(GameInput.Button.UICancel))
                 {
-                    gui.mainText.SetText(ZeroLanguage.Get("GAME_INTRO_PLAYERS_CONNECTED").Replace("{playerCount}", ZeroPlayer.GetAllPlayers().Count.ToString()) + "\n" + ZeroLanguage.Get("GAME_INTRO_SERVER_START_DESCRIPTION").Replace("{key}", "ESC") + "\n\n" + ZeroLanguage.Get("GAME_INVITE_CODE") + "\n" + Network.InviteCode.GetInviteCode());
+                    gui.mainText.SetText(ZeroLanguage.Get("GAME_INTRO_PLAYERS_CONNECTED").Replace("{playerCount}", ZeroPlayer.GetAllPlayers().Count.ToString()) + "\n" + ZeroLanguage.Get("GAME_INTRO_SERVER_START_DESCRIPTION").Replace("{key}", "ESC") + "\n\n" + ZeroLanguage.Get("GAME_SERVER_IP", "Server IP") + "\n" + LanHost.GetJoinAddressText(NetworkServer.DefaultPort));
                     yield return null;
                 }
 
@@ -139,14 +139,15 @@
 
             yield return introManager.Play(global::Player.main, gui);
 
-            IntroVignette.isIntroActive = false;
+            IntroProcessor.IsIntroActive = false;
 
             gui.ResumeGameTime();
             gui.StopCoroutine(gui.coroutine);
             gui.coroutine = null;
             gui.StartCoroutine(gui.ControlsHints());
+            gui.Stop(false);
 
-            IntroVignette.main.OnDone();
+            onIntroDone?.Invoke();
 
             IntroProcessor.SendPacketToServer(true);
         }

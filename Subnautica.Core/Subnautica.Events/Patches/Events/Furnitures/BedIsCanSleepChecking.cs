@@ -29,7 +29,7 @@ namespace Subnautica.Events.Patches.Events.Furnitures
                     return false;
                 }
 
-                if (player.timeLastSleep + __instance.kSleepInterval <= DayNightCycle.main.timePassed)
+                if (player.timeLastSleep + __instance.sleepInterval <= DayNightCycle.main.timePassed)
                 {
                     BedIsCanSleepCheckingEventArgs args = new BedIsCanSleepCheckingEventArgs(bedItem.UniqueId, __instance.GetSide(player), bedItem.IsSeaTruckModule);
 

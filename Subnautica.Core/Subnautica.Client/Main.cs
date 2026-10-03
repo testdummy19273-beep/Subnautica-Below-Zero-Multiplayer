@@ -4,6 +4,7 @@
     using Subnautica.API.Features;
 
     using System;
+    using System.Linq;
 
     using Handlers = Subnautica.Events.Handlers;
 
@@ -266,7 +267,26 @@
             try
             {
                 var harmony = new Harmony("Subnautica.Client.Main");
-                harmony.PatchAll();
+
+                int patched = 0, failed = 0;
+
+                foreach (var type in typeof(Main).Assembly.GetTypes().Where(q => q.Namespace != null && q.Namespace.StartsWith("Subnautica.Client")))
+                {
+                    try
+                    {
+                        if (harmony.CreateClassProcessor(type).Patch() != null)
+                        {
+                            patched++;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        failed++;
+                        Log.Error($"Harmony - Patch failed for {type.FullName}: {e.InnerException?.Message ?? e.Message}");
+                    }
+                }
+
+                Log.Info($"Harmony - Subnautica.Client: {patched} patch classes applied, {failed} failed.");
             }
             catch (Exception e)
             {

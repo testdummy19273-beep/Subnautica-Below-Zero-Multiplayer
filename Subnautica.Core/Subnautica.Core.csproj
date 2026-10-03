@@ -89,6 +89,7 @@
 		<Reference Include="UnityEngine.UnityWebRequestModule">
 			<Private>false</Private>
 		</Reference>
+		<Reference Include="Microsoft.CSharp" />
 		<Reference Include="System.Net.Http">
 			<Private>false</Private>
 		</Reference>

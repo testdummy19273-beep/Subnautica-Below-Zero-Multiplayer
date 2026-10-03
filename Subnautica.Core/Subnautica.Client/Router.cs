@@ -22,13 +22,12 @@
     {
         public void OnPluginEnabled()
         {
-            InviteCodeModule.OnPluginEnabled();
             MainProcess.OnPluginEnabled();
         }
 
         public void OnInGameMenuOpened(InGameMenuOpenedEventArgs ev)
         {
-            InviteCodeModule.OnInGameMenuOpened(ev);
+            LanHostModule.OnInGameMenuOpened(ev);
             ClientServerConnection.OnInGameMenuOpened(ev);
         }
 
@@ -44,7 +43,6 @@
 
         public void OnSceneLoaded(SceneLoadedEventArgs ev)
         {
-            InviteCodeModule.OnSceneLoaded(ev);
             MainProcess.OnSceneLoaded(ev);
             MultiplayerMainMenu.OnSceneLoaded(ev);
         }
@@ -163,7 +161,6 @@
 
         public void OnQuittingToMainMenu(QuittingToMainMenuEventArgs ev)
         {
-            InviteCodeModule.OnQuittingToMainMenu(ev);
             MainProcess.OnQuittingToMainMenu(ev);
         }
 

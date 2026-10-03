@@ -15,7 +15,7 @@
             __instance.UpdateText();
             global::Language.OnLanguageChanged += new Action(__instance.OnLanguageChanged);
 
-            while (!LightmappedPrefabs.main || LightmappedPrefabs.main.IsWaitingOnLoads() || !uGUI.main || !uGUI.main.loading || uGUI.main.loading.IsLoading || !PAXTerrainController.main || PAXTerrainController.main.isWorking)
+            while (!LightmappedPrefabs.main || LightmappedPrefabs.main.IsWaitingOnLoads() || !uGUI.main || WaitScreen.IsWaiting)
             {
                 yield return null;
             }

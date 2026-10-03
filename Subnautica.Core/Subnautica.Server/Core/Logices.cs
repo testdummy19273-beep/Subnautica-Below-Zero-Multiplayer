@@ -193,7 +193,6 @@ namespace Subnautica.Server.Core
             this.PlayerJoin = null;
             this.Weather = null;
             this.Timing = null;
-            this.ServerApi = null;
             this.VoidLeviathan = null;
         }
 
@@ -259,7 +258,6 @@ namespace Subnautica.Server.Core
 
         public Logic.Timing Timing { get; set; } = new Logic.Timing();
 
-        public Logic.ServerApi ServerApi { get; set; } = new Logic.ServerApi();
 
         public Logic.VoidLeviathan VoidLeviathan { get; set; } = new Logic.VoidLeviathan();
     }

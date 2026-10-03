@@ -37,47 +37,6 @@ namespace Subnautica.Events.Patches.Events.Storage
             }
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(LargeRoomWaterParkPlanter), "IsOnHandClickActive")]
-        private static bool LargeRoomWaterParkPlanter_IsOnHandClickActive(
-          LargeRoomWaterParkPlanter __instance)
-        {
-            if (!Network.IsMultiplayerActive || EventBlocker.IsEventBlocked(TechType.BaseWaterPark))
-                return true;
-            LargeRoomWaterPark componentInParent = __instance.GetComponentInParent<LargeRoomWaterPark>();
-            string constructionId;
-            if (componentInParent == null)
-            {
-                constructionId = null;
-            }
-            else
-            {
-                BaseDeconstructable baseDeconstructable = componentInParent.GetBaseDeconstructable();
-                if (baseDeconstructable == null)
-                {
-                    constructionId = null;
-                }
-                else
-                {
-                    GameObject gameObject = ((Component)baseDeconstructable).gameObject;
-                    constructionId = gameObject != null ? gameObject.GetIdentityId() : null;
-                }
-            }
-            if (constructionId.IsNull())
-                return false;
-            try
-            {
-                StorageOpeningEventArgs ev = new StorageOpeningEventArgs(constructionId, TechType.BaseWaterPark);
-                Handlers.Storage.OnOpening(ev);
-                return ev.IsAllowed;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(string.Format("LargeRoomWaterParkPlanter_IsOnHandClickActive: {0}\n{1}", (object)ex, (object)ex.StackTrace));
-                return true;
-            }
-        }
-
         public static KeyValuePair<string, TechType> GetStorageDetail(StorageContainer storageContainer)
         {
             Constructable component = storageContainer.gameObject.GetComponent<Constructable>();

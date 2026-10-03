@@ -102,10 +102,76 @@ namespace Subnautica.Events.Patches.Fixes.Game
                 MainGameController.OnGameStarted?.Invoke();
 
                 World.SetLoaded(true);
+
+                yield return FinishGameStart(__instance);
             }
             else
             {
                 yield return values;
+            }
+        }
+
+        /*
+         * Current game builds run the intro / creative start at the end of MainGameController.StartGame.
+         * Because StartGame is replaced in multiplayer, that part is repeated here. ShouldPlayIntro and
+         * uGUI_SceneIntro.Play are patched (see IntroChecking.cs) so the multiplayer lobby intro can take over.
+         */
+        private static IEnumerator FinishGameStart(global::MainGameController controller)
+        {
+            var player = global::Player.main;
+            var data = player.GetGameData(SaveLoadManager.main.storyVersion);
+            var playIntro = global::MainGameController.ShouldPlayIntro();
+
+            if (!playIntro)
+            {
+                WaitScreen.ManualWaitItem waitWorldSettle = WaitScreen.Add("WorldSettle");
+                waitWorldSettle?.SetProgress(0.5f);
+
+                var newCreativeMode = !GameModeManager.GetOption<bool>(GameOption.Story) && !global::Utils.GetContinueMode();
+                if (newCreativeMode)
+                {
+                    player.SetPosition(data.creativeStartLocation.position, Quaternion.Euler(data.creativeStartLocation.rotation));
+                    player.playerController.SetEnabled(false);
+
+                    yield return null;
+                }
+
+                while (!LargeWorldStreamer.main || !LargeWorldStreamer.main.IsReady() || !LargeWorldStreamer.main.IsWorldSettled())
+                {
+                    yield return new WaitForSecondsRealtime(1f);
+                }
+
+                if (newCreativeMode)
+                {
+                    player.playerController.SetEnabled(true);
+
+                    global::Story.StoryGoal.Execute(data.introManagerPrefab.gameStartGoal, global::Story.GoalType.Story, true, true);
+                    global::Story.StoryGoal.Execute("CreativeMode", global::Story.GoalType.Story, true, true);
+
+                    if (DayNightCycle.main)
+                    {
+                        DayNightCycle.main.SetDayNightTime(data.creativeStartTimeOfDay / 24f);
+                    }
+                }
+
+                controller.OnIntroDone();
+
+                MainMenuMusic.Stop();
+                VRLoadingOverlay.Hide();
+
+                if (waitWorldSettle != null)
+                {
+                    WaitScreen.Remove(waitWorldSettle);
+                }
+            }
+            else
+            {
+                player.SetPosition(data.storyStartLocation.position, Quaternion.Euler(data.storyStartLocation.rotation));
+
+                var introManager = UnityEngine.Object.Instantiate(data.introManagerPrefab);
+                uGUI.main.intro.Play(introManager, controller.OnIntroDone);
+
+                controller.OnIntroDone();
             }
         }
 

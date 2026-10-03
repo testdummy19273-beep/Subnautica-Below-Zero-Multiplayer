@@ -291,8 +291,6 @@ namespace Subnautica.Server.Core
                 ServerHandlers.PlayerFullConnected += this.Logices.CreatureWatcher.OnPlayerFullConnected;
                 ServerHandlers.PlayerFullConnected += this.Logices.BaseWaterPark.OnPlayerFullConnected;
 
-                ServerHandlers.PlayerDisconnected += this.Logices.ServerApi.OnPlayerDisconnected;
-
                 MainGameController.OnGameStarted.AddHandler(new Action(this.Logices.PowerConsumer.OnGameStart));
             }
         }
@@ -310,8 +308,6 @@ namespace Subnautica.Server.Core
                 EventHandlers.Building.BaseHullStrengthCrushing -= this.Logices.BaseHullStrength.OnCrushing;
 
                 Furnitures.PlanterStorageReseting -= this.Logices.BaseWaterPark.OnPlanterStorageReseting;
-
-                ServerHandlers.PlayerDisconnected -= this.Logices.ServerApi.OnPlayerDisconnected;
 
                 ServerHandlers.PlayerFullConnected -= this.Logices.BaseWaterPark.OnPlayerFullConnected;
                 ServerHandlers.PlayerFullConnected -= this.Logices.CreatureWatcher.OnPlayerFullConnected;

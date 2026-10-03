@@ -6,6 +6,7 @@ namespace Subnautica.Events
     using Subnautica.API.Features;
 
     using System;
+    using System.Linq;
 
     using UnityEngine.SceneManagement;
 
@@ -24,7 +25,26 @@ namespace Subnautica.Events
             try
             {
                 var harmony = new Harmony("Subnautica.Events.Main");
-                harmony.PatchAll();
+
+                int patched = 0, failed = 0;
+
+                foreach (var type in typeof(Main).Assembly.GetTypes().Where(q => q.Namespace != null && q.Namespace.StartsWith("Subnautica.Events")))
+                {
+                    try
+                    {
+                        if (harmony.CreateClassProcessor(type).Patch() != null)
+                        {
+                            patched++;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        failed++;
+                        Log.Error($"Harmony - Patch failed for {type.FullName}: {e.InnerException?.Message ?? e.Message}");
+                    }
+                }
+
+                Log.Info($"Harmony - Subnautica.Events: {patched} patch classes applied, {failed} failed.");
             }
             catch (Exception e)
             {

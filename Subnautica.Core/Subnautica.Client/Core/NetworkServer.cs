@@ -10,6 +10,8 @@
     {
         public static int DefaultPort => Settings.ModConfig.HostOnPort.GetInt() == -1 ? 7777 : Settings.ModConfig.HostOnPort.GetInt();
 
+        public const string DefaultLocalIpAddress = "127.0.0.1";
+
         public static int DefaultMaxPlayer => Settings.ModConfig.MaxPlayer.GetInt() == -1 ? 8 : Settings.ModConfig.MaxPlayer.GetInt();
 
         public static bool IsConnecting()

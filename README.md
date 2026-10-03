@@ -1,56 +1,32 @@
-### Subnautica Below Zero Multiplayer Mod
+### Subnautica Below Zero Multiplayer Mod - LAN / direct IP edition
 
-Created for people who want to use in LAN.\
-Removed unwanted software (netbird)\
-Added option to host custom Lobby.
+Fork of the Subnautica Below Zero Multiplayer mod made for playing on a LAN with friends.
 
-## How to install
-Go to installed SubnauticaZero folder.
-Create Folders:
-- Multiplayer/Game/Core
-- Multiplayer/Game/Dependencies
-- Multiplayer/Game/Logs
-- Multiplayer/Game/Plugins
-- Multiplayer/Game/Saves
+- No NetBird, no lobby server, no invite codes. The host runs the server inside the game and friends join by IP address.
+- Host a world straight from the game menu (Multiplayer -> Host). The host's LAN IP is shown in the intro screen and under "Show Server IP" in the in-game menu.
+- Join by typing `192.168.x.x` or `192.168.x.x:port`.
+- Option to set the path to `SubnauticaZero.exe` (`GameExePath` in `Config.json`, used for the Windows Firewall rule; auto-detected if empty).
+- Updated to work with the current Steam build of Subnautica: Below Zero (Oct 2025).
 
-Put Subnautica.Loader.dll to Multiplayer/Game\
-Put Data/SpawnPoints.bin to Multiplayer/Game/Core\
-Replace Data/Assembly-CSharp.dll in SubnauticaZero_Data/Managed\
-Put Dependencies to Multiplayer/Game/Dependencies\
-
-Dependencies are everything that building Subnautica.Core results.
-List if you unsure:
-- 0Harmony.dll
-- LiteNetLib.dll
-- MessagePack.Annotations.dll
-- MessagePack.dll
-- Microsoft.Bcl.AsyncInterfaces.dll
-- Microsoft.NET.StringTools.dll
-- Newtonsoft.Json.dll
-- Subnautica.Core.dll
-- System.Buffers.dll
-- System.Collections.Immutable.dll
-- System.Memory.dll
-- System.Numerics.Vectors.dll
-- System.Runtime.CompilerServices.Unsafe.dll
-- System.Threading.Tasks.Extensions.dll
+## Install (players)
+Download `SubnauticaBZ-Multiplayer-LAN.zip` from the Releases page, unzip, run `Install.bat` and follow `README-LAN.txt`.
+`Install.bat` patches *your own* copy of `Assembly-CSharp.dll` (a backup is kept) so no game files are redistributed.
+Everyone must be on the same game version.
 
 ## Config
-- Run the game first time. Then close it!
-- Go to "Multiplayer\Game\Core"
-- Open Config.json
-- Edit the LobbyURL to your or anyones Lobby Server ip and port. [If you running locally you can use 172.0.0.1]
-- Edit the MyIp to your ip. (Make sure users can join to you, LAN mode use lan ip, otherwise use Public IP)
-- Edit the HostOnPort to a desired FREE port to make the game can host on it.
-- Save it.
+Run the game once and close it, then edit `Multiplayer/Game/Core/Config.json`:
 
-## Lobby
-You need .NET 8 to build/run it.
-You can run it with desired IP and Port to host on it.\
-Added because users does not want to host the lobby on port 80.\
-`LobbyServer IP Port`\
-Example: `LobbyServer.exe 192.168.3.50 8888`
+| Option | Meaning |
+| --- | --- |
+| `GameExePath` | Path to `SubnauticaZero.exe` or its folder. Empty = auto-detect. |
+| `ConfigureFirewall` | Ask once (UAC) to allow the game through Windows Firewall when hosting. |
+| `HostOnPort` | UDP port the host listens on (default 7777). |
+| `DefaultJoinPort` | Port used when joiners type an address without `:port` (default 7777). |
+| `MaxPlayer` | Max players. |
+| `ConnectionTimeout` | Connection timeout in seconds. |
+
+## Build
+See [Tools/BUILDING.md](Tools/BUILDING.md).
 
 ## Thanks
-Thanks BOT Benson for creating this.\
-dnSpyEx for able to read C# dlls to able to edit it.
+Thanks BOT Benson for creating this, and Detanup01 for the fork this one is based on.

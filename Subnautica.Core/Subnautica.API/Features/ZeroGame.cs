@@ -45,15 +45,26 @@
             ApplicationFocus.OnRunInBackgroundChanged();
         }
 
+        private static WaitScreen.ManualWaitItem LoadingItem { get; set; }
+
         public static void ShowLoadingScreen()
         {
-            uGUI.main.loading.ShowLoadingScreen();
+            if (LoadingItem == null)
+            {
+                LoadingStage.durations["CreateServer"] = 15f;
+
+                LoadingItem = WaitScreen.Add("CreateServer");
+                LoadingItem?.SetProgress(0.4f);
+            }
         }
 
         public static void StopLoadingScreen()
         {
-            uGUI.main.loading.loadingBackground.StopAllCoroutines();
-            uGUI.main.loading.End(false);
+            if (LoadingItem != null)
+            {
+                WaitScreen.Remove(LoadingItem);
+                LoadingItem = null;
+            }
         }
 
         public static void FreezeGame()
